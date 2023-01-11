@@ -18,7 +18,7 @@ The game keeps track of the last 60 x and y positions of each player (for the bo
 1FC080-1FC0AC| Player 1’s x position from newest -> oldest (updates more frequently)
 1FC0B0-1FC0D4| Player 1’s y position from newest -> oldest (updates more frequently)
 
-The the x-y coordinates of each player's play area are agiven by
+The the x-y coordinates of each player's play area are given by
 
 |Description|x-y coordinate|
 |-|-|
@@ -27,6 +27,10 @@ The the x-y coordinates of each player's play area are agiven by
 |Top right corner| (0x82,0x13)|
 |Bottom right corner| (0x82,0x6E)|
 |Starting position| (0x6E,0x31)|
+
+For the top left corner player, this looks like 
+
+<img src="playarea.png" width=50% height=50%>
 
 ### Scoring Track
 There is a single path for each version of the minigame that the player must trace over to score points. The game makes a map that stores whether a certain position is on or off this track. The game stores a map of each point in the image to be traced and for each point, stores either 0x00 for a point off the track or 0xFF for a point on the track. The memory ranges of these maps are as follows:
@@ -37,36 +41,40 @@ Chain-chomp|0x2173C0-0x21BF50
 Blooper|0x217160-0x21BCF0
 Cheep cheep|0x217410-20x1BFA0
 
-The program searches through this map by multiplying the current y position by 0xA0 and adding the current x position to create the distance from the beginning of the map. The number of times the player is on track or off track is counted. If the byte that it lands on is 0xFF then the player is on the track and 1 is added to its ‘ON’ count, otherwise the player is off the track and 1 is added to the player’s ‘OFF’ count. Mapped out on the chomp course, the track looks like this: (give or take a pixel on each side…)
+The program searches through this map by multiplying the current y position by 0xA0 and adding the current x position to create the distance from the beginning of the map. The number of times the player is on track or off track is counted. If the byte that it lands on is 0xFF then the player is on the track and 1 is added to its ‘ON’ count, otherwise the player is off the track and 1 is added to the player’s ‘OFF’ count. Mapped out on the chomp course, the track (in white) looks like this:
 
+![Chomp track](track-chomp.png)
 
 Mapped for the Blooper course:
 
+![Blooper track](track-blooper.png)
 
 Mapped for the Cheep-cheep course:
 
+![Cheep-cheep track](track-cheep.png)
+
 ### Score
 
-ON = number of frames travelled on the correct path
-OFF = number of frames travelled off the path
-PR = Punishment ratio = the lesser of    (ON+OFF)/500      or  1.0
+In order to calculate the player's score, the game tracks two values: the number of frames the player travelled on the correct path (*ON*), and the number of frames travelled off the path (*OFF*).
 
-a = 100(PR*ON/(ON+OFF))+0.5
+The final score is largely based on the percentage of frames that the player stays on the track. Several adjustments are made, however, to encourage the player to complete the entire circuit.
 
-b = the greater? of a or 80
+The *punishment ratio* (*PR*) is calculated to prevent the player from travelling only a short distance on the track then ending their run. It is found by $PR = min\\{1,(ON+OFF)/500\\}$.
 
-DM  = Dignity multiplier = 1 + (95 - b)/150             jumps to better place if a > 95
+We can then calculate an intermediate value *a* by $a = PR\\cdot(\\frac{ON}{ON+OFF})\\cdot100 + 0.5$.
 
-Score = a*DM 
+Scores below 95 are then inflated to look more impressive. A score multiplier is calculated, given by 
 
-So.. if PR = 1 then score = (96.815on^2)+164.297*on*off+0.815off^2)/(on+off)^2
+$$multiplier = \begin{cases} 
+      1+(95 - max\\{a,80\\})/150 & a \leq 95 \\\
+      1 & a > 95
+ \end{cases}$$
+ 
+ giving a maximum 10% bonus so the player's score.
+ 
+Finally the total score is calulated by taking $a \cdot multipler$.
 
-If PR < 1 then score = - 0.000266667 (b-1222.5) (b+2.5)
-
-I think sometimes the score gets set to zero even though you’ve done a sufficient trace is that on BizHawk, sometimes it doesn’t register that you made a complete loop (ie it stops without setting the leftmost bit in 0x109970 to 1
-
-
-Did you try hard enough?
+### Did you try hard enough?
 
 Code starting at 80104B04 is calculating the distance between the player and a point on the middle of the play area. When the player reaches a distance of 30 from that point, byte 5 from 109970 changes from A->B or 8->9 and that game is satisfied you have tried hard enough.
 
