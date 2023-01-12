@@ -3,7 +3,7 @@
 ### Introduction
 This is a 4v4 minigame from Mario Party 2. Each player selects, in random order, from four characters [Bob-omb, Boo, Thwomp, and Whomp] who run a foot/ghost-race down a track. The winner is the player who selected the character who finishes first.
 
-# Mechanics
+### Mechanics
 The outcome of the race is determined once all memory has been generated for the minigame (ie. one frame before the screen loads). After that point, there is no changing the outcome of the race. 
 
 The running track is divided into 7 segments. The lines (milestones) dividing the first four segments line up with the numbered signs at the back side of the track (signs “4”,”3”,”2”, and “1”). Lines 5 and 6 are somewhere between sign “1” and the finish line, they are very close to each other. Line 7 is the finish line. Each character’s progress through the race is held in one byte:
@@ -28,7 +28,7 @@ Each character has 3 movement modes: walking, running, and tripped. Characters s
 - a tripped player will immediately recover and either begin running or continue walking
 - once a player begins running, it can trip but will never slow to walking again
 
-# Race outcome
+### Race outcome
 After running the game 357 times (waiting 2 frames longer each iteration during the rules explanation) the number of wins were:
 |Character|# wins|proportion
 -|-|-|
@@ -42,10 +42,10 @@ If this were a fair race, each racer would have been expected to win about 89 ti
 
 0x0C99B4-6 holds a random number (freezing it keeps the race outcome and progress from changing).
 
-# Race Performance
+### Race Performance
 When the first player passes a milestone, the program looks up a table of program addresses (one for each milestone). This address directs the program to a table of halfwords containing either 0 or 1s. 0000 means there is a change in the player’s state and 0001 means there is no change in the player’s state. If this is zero, the game grabs a number from the random number generator (at 0x10AEC0) and places the value at 10AEC0. This random number is used to do a look up from a  table of 20 addresses that direct the program to memory locations that change the player's movement mode.
 
-# Player Order
+### Player Order
 Since some characters have a much higher chance of winning than others, whichever play gets to select their character first has a significant advantage.
 
 Player character selection is stored in 0x10AC30-33 (30 = Bob-omb, 31 = Boo, 32 = Thwomp, 33 = Whomp). Each character’s respective byte will change from FF (unselected) to 00-03 (00 = picked first, 01 = picked second, etc.) 1D1414 stores which player had just picked (03 = Player 1, 05 -  Player 2, 07 = Player 3, 09 = Player 4). The order that players select their character is stored at 0x10AC2C-2F (10AC2C = First pick, etc.)
