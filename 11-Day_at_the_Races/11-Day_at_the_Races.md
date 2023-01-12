@@ -69,7 +69,15 @@ The first one is found at 0x1D1564, so P2 picks fourth => 0x10AC2C = 00030201
 No more ones are found so now we are looking for 2's.
 The first two is found at 0x1D1558, so P1 picks first => 10AC2C = 00030201
 
-With this approach, P4 has a significantly higher chance of picking first. P4 will pick first as long as 1D1558 is less than or equal to the other 3 words:
+With this approach, P4 has a significantly higher chance of picking first. P4 will pick first as long as 0x1D1558 is less than or equal to the other 3 words. So 
+
+$$\begin{aligned}
+P(\text{Player 4 picks first}) &= P(\text{0x1D1558} = 0) + P(\text{0x1D155C} <= \text{0x1D1558, 0x1D1560, 0x1D1564}) + P(\text{0x1D1560} <= \text{0x1D1558, 0x1D155C, 0x1D1564}) + P(\text{0x1D1564} <= \text{0x1D1558, 0x1D155c, 0x1D1564}) \\
+&= \dfrac{1}{4} + (\dfrac{1}{4})(\dfrac{3}{4})^3 + (\dfrac{1}{2})^2 + (\dfrac{1}{4})^4) \\
+&= \dfrac{100}{256}
+\end{aligned}$$
+
+
 	P(Player 4 picks first) = P(1D1558 = 0) + 				= 1/4
    P(1D1558 = 1 AND 1D155C-64 >= 1)	= (¼)(¾)(¾)(¾)
    P(1D1558 = 2 AND 1D155C-64 >= 2)	= (¼)(½)(½)(½)
