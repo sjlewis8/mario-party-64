@@ -72,45 +72,26 @@ $$multiplier = \begin{cases}
  
  giving a maximum 10% bonus so the player's score.
  
-Finally the total score is calulated by taking $a \cdot multipler$.
+Finally the total score is found by taking $a \cdot multipler$.
 
 ### Did you try hard enough?
 
-Code starting at 80104B04 is calculating the distance between the player and a point on the middle of the play area. When the player reaches a distance of 30 from that point, byte 5 from 109970 changes from A->B or 8->9 and that game is satisfied you have tried hard enough.
+In addition to reducing the score of short paths, the game will also award a score of 0 if the player never progressed far enough around the track. The player needs to enter a circular area (seen below) centered around the left edge of the play area at some point during their run. If they do not, the score is automatically zero. 
 
+![Circle](circle.png)
 
+Code starting at 80104B04 is calculating the distance between the player and a point on the middle of the play area. When the player reaches a distance of 30 from that point, byte 5 from 109970 changes from A->B or 8->9 and that game is satisfied the player has tried hard enough.
 
-To display player’s circle of tried enough:
+### AI Track
 
-Address	Value
-80104AF0	080454E0
-80115380	E7AC0044
-80115384	0014A900
-80115388	3C168011
-8011538C	36D65340
-80115390	02D5B021
-80115394	E6C00000
-80115398	E6C20004
-8011539C	E6C40008
-801153A0	E6CC000C
-801153A4	02A0A825
-801153A8	02C0B025
-801153AC	080412B4
+The program stores somewhere around 20 pairs x and y coordinates for each player. Each one is stored as a run of x coordinates followed by some junk, then an equal run of y coordinates. The AI players move directly from one point to the next until a complete path is traced. I think the runs are stored in the stack so they appear at different places in memory each game.
 
-AI Track
+![AI path coordinates](ai-coordinates.png)
 
-The program stores somewhere around 20 pairs x and y coordinates for each player. Each on is stored as a run of x coordinates followed by some junk, then an equal run of y coordinates. These match up one to one to form the points that the computer AI will aim to hit as it goes around the track. I think the runs are stored in the stack so they appear at different places in memory each game.
+In the above image, each circle is an AI path coordinate. Luigi goes from one to the next perfectly. 
 
-Each circle is an AI path coordinate. Luigi went from one to the next perfectly. Each one seems to be generated randomly when the scene loads. For Player 1, memory at 109588 stores which point the AI has hit. It flips the corresponding bit each time the computer player hits one of the points.
+Each point is generated randomly when the scene loads. First, game loads into memory the non-skewed version of the path (ie a perfect route) into memory starting around 0x1091A8. The points then get randomly skewed which creates the track that player AI follows.
 
-
-
-The game loads into memory the non-skewed version of the map into memory starting around 1091A8. Each run consists of pairs of coordinates (x1 y1 x2 y2 x3 y3…. etc):
-
-
-These memory sequences seem to be conserved between instances. The points then seem to get randomly skewed which creates the track that player AI follows
-
-When the RNG is set to zero, all players draw the un-skewed path. The top two players get 78 and the bottom two players get 79 (maybe because the bottom two tracks align slightly better?)
-
+For Player 1, memory at 0x109588 stores which point the AI has hit. It flips the corresponding bit each time the computer player hits one of the points.
 
 
