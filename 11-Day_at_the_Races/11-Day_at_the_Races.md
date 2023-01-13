@@ -43,7 +43,7 @@ If this were a fair race, each racer would have been expected to win about 89 ti
 0x0C99B4-6 holds a random number (freezing it keeps the race outcome and progress from changing).
 
 ### Race Performance
-When the first player passes a milestone, the program looks up a table of program addresses (one for each milestone). This address directs the program to a table of halfwords containing either 0 or 1s. 0000 means there is a change in the player’s state and 0001 means there is no change in the player’s state. If this is zero, the game grabs a number from the random number generator (at 0x10AEC0) and places the value at 10AEC0. This random number is used to do a look up from a  table of 20 addresses that direct the program to memory locations that change the player's movement mode.
+When the first player passes a milestone, the program looks up a table of program addresses (one for each milestone). This address directs the program to a table of (32 bit) words containing either 0 or 1s. 0000 means there is a change in the player’s state and 0001 means there is no change in the player’s state. If this is zero, the game grabs a number from the random number generator (at 0x10AEC0) and places the value at 10AEC0. This random number is used to do a look up from a  table of 20 addresses that direct the program to memory locations that change the player's movement mode.
 
 ### Player Order
 Since some characters have a much higher chance of winning than others, whichever play gets to select their character first has a significant advantage.
