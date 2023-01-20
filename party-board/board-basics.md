@@ -6,6 +6,60 @@ This distance each player moves around the game board is determined by the roll 
 
 The number of spaces that the player has yet to move is stored in 0x100028. For each space moved, this number is decremented by 1 by code at 0x065868.
 
+### Board Layout
+
+The spaces on the party board are all numbered based on what branch of the board they are on and then how far into the branch they are. New branches typically start after a fork in the path. 
+
+Data for the spaces on the party board begins at 0x12C5E0. Each space on the board has a block of memory that is 9 words long layed out as follows:
+
+<table>
+  <tr>
+    <td> 1
+    <td> Space visual
+  <tr>
+    <td> 2
+    <td> ?
+  <tr>
+    <td> 3
+    <td> X position (32 bit float)
+  <tr>
+    <td> 4
+    <td> Z position (32 bit float)
+  <tr>
+    <td> 5
+    <td> Y position (32 bit float)
+  <tr>
+    <td> 6
+    <td rowspan="3"> Temporary - used in calculating movement
+  <tr>
+    <td> 7
+  <tr>
+    <td> 8
+  <tr>
+    <td> 9
+    <td> Event list
+ </table>
+
+The second byte in the `Space visual` word determines the appearance of the space (eg blue space, star space, etc.). Changing this does not change the space's behavior when a player lands on it. These values are:
+
+|Value|Appearance|
+-|-
+0x1|Blue space
+0x2|Red space
+0x4|Green space
+0x5|Chance time
+0x6|Item minigame
+0x7|Bank space
+0x8|Fork in the path (invisible?)
+0x9|Battle minigame
+0xC|Bowser
+0xD|Item shop
+0xE|Star
+0xF|Baby Bowser
+      
+The last byte contains the address of an event that triggers special behaviour by the game (for example moving the player to a another location).
+      
+      
 ### Position and Walking
 
 Each position value has two position values, the first is the current position on the board and the last is the players next tile they will move to. This is stored in
